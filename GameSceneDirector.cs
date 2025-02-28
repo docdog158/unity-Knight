@@ -8,7 +8,7 @@ public class GameSceneDirector : MonoBehaviour
 {
     // タイルマップ
     [SerializeField] GameObject grid;
-    [SerializeField] Tilemap TilemapCollider;
+    [SerializeField] Tilemap tilemapCollider;
     //　マップ全体座標
     public Vector2 TileMapStart;
     public Vector2 TileMapEnd;
@@ -25,10 +25,15 @@ public class GameSceneDirector : MonoBehaviour
     public float GameTimer;
     public float OldSeconds;
 
+    // 敵生成
+    [SerializeField] EnemySpawnerController enemySpawner;
+
     void Start()
     {
         // 初期設定
         OldSeconds = -1;
+        enemySpawner.Init(this, tilemapCollider);
+
 
         //カメラの移動できる範囲
         // GetComponentInChildren　指定したオブジェクトの子オブジェクト（<>内）を取得できる
