@@ -5,14 +5,14 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    // 移動とアニメーション
     Rigidbody2D rigidbody2d;
     Animator animator;
-    float moveSpeed = 10;
-    // Start is called before the first frame update
 
-    [SerializeField] GameSceneDirector sceneDirector;
-    [SerializeField] Slider sliderHP;
-    [SerializeField] Slider sliderXP;
+    // 後でInitへセットされる
+    GameSceneDirector sceneDirector;
+    Slider sliderHP;
+    Slider sliderXP;
 
     public CharacterStats Stats;
 
@@ -20,10 +20,19 @@ public class PlayerController : MonoBehaviour
     float attackCoolDownTimer;
     float attackCoolDownTimerMax = 0.5f;
 
+    // 必要XP
+    List<int> levelRequirements;
+    // 敵生成装置
+    EnemySpawnerController enemySpawner;
+    // 向き
+    public Vector2 Forward;
+    // レベルテキスト
+    Text textLv;
+
+
     void Start()
     {
-        rigidbody2d = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+
     }
 
     // Update is called once per frame
@@ -37,6 +46,66 @@ public class PlayerController : MonoBehaviour
 
         moveSliderHP();
     }
+
+    // 初期化
+    public void Init(GameSceneDirector sceneDirector, EnemySpawnerController enemySpawner,
+        CharacterStats characterStats, Text textLv, Slider sliderHP, Slider sliderXP)
+    {
+        levelRequirements = new List<int>();
+
+        this.sceneDirector = sceneDirector;
+        this.enemySpawner = enemySpawner;
+        this.Stats = characterStats;
+        this.textLv = textLv;
+        this.sliderHP = sliderHP;
+        this.sliderXP = sliderXP;
+
+        rigidbody2d = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+
+        // プレイヤーの向き
+        Forward = Vector2.right;
+
+        // 経験値の閾値リスト
+        levelRequirements.Add(0);
+        for (int i = 1; i < 1000; i++)
+        {
+            // 1つ前の閾値
+            int prevxp = levelRequirements[i - 1];
+            // 41以降はレベル毎に16XPずつ追加
+            int addxp = 16;
+
+            // レベル2までレベルアップするのに5XP
+            if(i==1)
+            {
+                addxp = 5;
+            }
+            else if (20 >= i)
+            {
+                addxp = 10;
+            }
+            else if (40 >= i)
+            {
+                addxp = 13;
+            }
+
+            // 必要経験値
+            levelRequirements.Add(prevxp + addxp);
+        }
+
+        // LV2の必要経験値
+        Stats.MaxHP = levelRequirements[1];
+
+        // UI初期化
+        setTextLv();
+        setSliderHP();
+        setSliderXP();
+
+        moveSliderHP();
+
+        // TODO　武器データセット
+    }
+
     void movePlayer()
     {
         Vector2 dir = Vector2.zero;
@@ -70,7 +139,7 @@ public class PlayerController : MonoBehaviour
         if (Vector2.zero == dir ) return;
 
         //プレイヤー移動
-        rigidbody2d.position += dir.normalized * moveSpeed * Time.deltaTime;
+        rigidbody2d.position += dir.normalized * Stats.MoveSpeed * Time.deltaTime;
 
         //アニメーションを再生する
         animator.SetTrigger(trigger);
@@ -159,20 +228,20 @@ public class PlayerController : MonoBehaviour
 
         if (0 > Stats.HP) Stats.HP = 0;
         setSliderHP();
+    }
 
-        //HPスライダーの値を変更
-        void setSliderHP()
-        {
-            sliderHP.maxValue = Stats.MaxHP;
-            sliderHP.value = Stats.HP;
-        }
+    // HPスライダーの値を変更
+    void setSliderHP()
+    {
+        sliderHP.maxValue = Stats.MaxHP;
+        sliderHP.value = Stats.HP;
+    }
 
-        //XPスライダーの値を変更
-        //void setSliderXP()
-        //{
-        //    sliderXP.maxValue = Stats.MaxXP;
-        //    sliderXP.value = Stats.XP;
-        //}
+    // XPスライダーの値を変更
+    void setSliderXP()
+    {
+        sliderXP.maxValue = Stats.MaxXP;
+        sliderXP.value = Stats.XP;
     }
 
     // 衝突したとき
@@ -182,14 +251,16 @@ public class PlayerController : MonoBehaviour
     }
 
     // 衝突している間
-    //private void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    attackPlayer(collision);
-    //}
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        attackEnemy(collision);
+    }
 
     // 衝突が終わった時
-    //private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionExit2D(Collision2D collision)
+    {
 
+    }
 
     // プレイヤーへ攻撃する
     void attackEnemy(Collision2D collision)
@@ -198,7 +269,7 @@ public class PlayerController : MonoBehaviour
         if (!collision.gameObject.TryGetComponent<EnemyController>(out var enemy)) return;
 
         // タイマー未消化
-        if (0 <attackCoolDownTimer) return;
+        if (0 < attackCoolDownTimer) return;
 
         enemy.Damage(Stats.Attack);
         attackCoolDownTimer = attackCoolDownTimerMax;
@@ -212,6 +283,12 @@ public class PlayerController : MonoBehaviour
             attackCoolDownTimer -= Time.deltaTime;
         }
 
+    }
+
+    // レベルテキスト更新
+    void setTextLv()
+    {
+        textLv.text = "LV " + Stats.Lv;
     }
 }
 

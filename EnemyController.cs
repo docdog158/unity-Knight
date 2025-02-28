@@ -27,7 +27,7 @@ public class EnemyController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Init(this.sceneDirector, CharacterSettings.Instance.Get(100));
+        
     }
 
     // Update is called once per frame
@@ -139,13 +139,16 @@ public class EnemyController : MonoBehaviour
     }
 
     // 衝突している間
-    //private void OnCollisionEnter2D(Collision2D collision)
-    //{
-    //    attackPlayer(collision);
-    //}
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        attackPlayer(collision);
+    }
 
     // 衝突が終わった時
-    //private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        
+    }
 
     // プレイヤーへ攻撃する
     void attackPlayer(Collision2D collision)
