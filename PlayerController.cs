@@ -178,6 +178,8 @@ public class PlayerController : MonoBehaviour
             pos.y = sceneDirector.WorldEnd.y;
             rigidbody2d.position = pos;
         }
+
+        Forward = dir;
     }
 
     // カメラ移動
