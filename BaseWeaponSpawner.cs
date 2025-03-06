@@ -9,6 +9,7 @@ public class BaseWeaponSpawner : MonoBehaviour
 
     // 武器データ
     public WeaponSpawnerStats Stats;
+
     // 与えた総ダメージ
     public float TotalDamage;
     // 稼働タイマー
@@ -37,6 +38,7 @@ public class BaseWeaponSpawner : MonoBehaviour
     }
 
     // 武器生成
+
     protected BaseWeapon createWeapon(Vector3 position, Vector2 forward, Transform parent = null)
     {
         // 生成
@@ -58,6 +60,7 @@ public class BaseWeaponSpawner : MonoBehaviour
     }
 
     // 武器のアップデートを停止する
+
     public void SetEnabled(bool enabled = true)
     {
         this.enabled = enabled;

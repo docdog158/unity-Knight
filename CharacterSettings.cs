@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 右クリックメニューに表示する、filenameはデフォルトのファイル名
 [CreateAssetMenu(fileName = "CharacterSettings", menuName = "ScriptableObjects/CharacterSettings")]
 public class CharacterSettings : ScriptableObject
 {
