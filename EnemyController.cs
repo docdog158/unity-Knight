@@ -127,6 +127,13 @@ public class EnemyController : MonoBehaviour
         if (createXP)
         {
             // TODO 経験値作成
+            if (createXP)
+            {
+                // 経験値生成
+                sceneDirector.CreateXP(this);
+            }
+
+            state = State.Dead;
         }
 
         state = State.Dead;

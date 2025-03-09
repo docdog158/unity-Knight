@@ -33,6 +33,8 @@ public class GameSceneDirector : MonoBehaviour
     [SerializeField] Slider sliderHP;
     [SerializeField] Text textLv;
 
+    [SerializeField] List<GameObject> prefabXP;
+
     void Start()
     {
         // プレイヤー作成
@@ -101,5 +103,31 @@ public class GameSceneDirector : MonoBehaviour
 
         textTimer.text = Utils.GetTextTimer(GameTimer);
         OldSeconds = seconds;
+    }
+
+    // 経験値取得
+    public void CreateXP(EnemyController enemy)
+    {
+        float xp = Random.Range(enemy.Stats.XP, enemy.Stats.MaxXP);
+        if (0 > xp) return;
+
+        // 5未満
+        GameObject prefab = prefabXP[0];
+
+        // 10以上
+        if (10 <= xp)
+        {
+            prefab = prefabXP[2];
+        }
+        // 5以上
+        else if (5 <= xp)
+        {
+            prefab = prefabXP[1];
+        }
+
+        // 初期化
+        GameObject obj = Instantiate(prefab, enemy.transform.position, Quaternion.identity);
+        XPController ctrl = obj.GetComponent<XPController>();
+        ctrl.Init(this, xp);
     }
 }
