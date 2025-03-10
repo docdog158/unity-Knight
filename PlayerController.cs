@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     // 現在装備中の武器
     public List<BaseWeaponSpawner> WeaponSpawners;
 
+    // 追加したアイテムと個数
+    public Dictionary<ItemData, int> ItemDatas;
+
     void Start()
     {
 
@@ -55,7 +58,7 @@ public class PlayerController : MonoBehaviour
         // 変数初期化
         levelRequirements = new List<int>();
         WeaponSpawners = new List<BaseWeaponSpawner>();
-
+        ItemDatas = new Dictionary<ItemData, int>();
 
         this.sceneDirector = sceneDirector;
         this.enemySpawner = enemySpawner;
@@ -304,11 +307,12 @@ public class PlayerController : MonoBehaviour
     // 武器を追加
     void addWeaponSpawner(int id)
     {
-        // TODO 装備済みならレベルアップ
+        // 装備済みならレベルアップ
         BaseWeaponSpawner spawner = WeaponSpawners.Find(item => item.Stats.Id == id);
 
         if(spawner)
         {
+            spawner.LevelUp();
             return;
         }
 
@@ -323,6 +327,145 @@ public class PlayerController : MonoBehaviour
 
         // 装備済みリストへ追加
         WeaponSpawners.Add(spawner);
+    }
+
+    // 経験値取得
+    public void GetXP(float xp)
+    {
+        Stats.XP += xp;
+
+        // レベル上限
+        if (levelRequirements.Count - 1 < Stats.Lv) return;
+
+        // レベルアップ
+        if ( levelRequirements[Stats.Lv] <= Stats.XP)
+        {
+            Stats.Lv++;
+
+            // 次の経験値
+            if(Stats.Lv < levelRequirements.Count)
+            {
+                Stats.XP = 0;
+                Stats.MaxXP = levelRequirements[Stats.Lv];
+            }
+
+            // TODO レベルアップパネル表示
+            setTextLv();
+        }
+
+        // 表示更新
+        setSliderXP();
+    }
+
+    // 装備可能な武器リスト
+    public List<int> GetUsableWeaponIds()
+    {
+        List<int> ret = new List<int>(Stats.UsableWeaponIds);
+
+        // 装備可能数を超える場合は装備している武器のIDを返す
+        if (Stats.UsableWeaponMax - 1 < WeaponSpawners.Count)
+        {
+            ret.Clear();
+            foreach (var item in WeaponSpawners)
+            {
+                ret.Add(item.Stats.Id);
+            }
+        }
+        return ret;
+    }
+
+    // 装備可能な武器をランダムで返す
+    public WeaponSpawnerStats GetRandomSpawnerStats()
+    {
+        // 装備可能な武器ID
+        List<int> usableIds = GetUsableWeaponIds();
+
+        // 装備可能な武器がない（一応)
+        if(1>usableIds.Count)
+        {
+            return null;
+        }
+
+        // 抽選
+        int rnd = Random.Range(0, usableIds.Count);
+        int id = usableIds[rnd];
+
+        // 装備済みなら次のレベルのデータ
+        BaseWeaponSpawner spawner = WeaponSpawners.Find(item => item.Stats.Id == id);
+        if(spawner)
+        {
+            return spawner.GetLevelUpStats(true);
+        }
+
+        // 新規ならレベル１のデータ
+        return WeaponSpawnerSettings.Instance.Get(id, 1);
+    }
+
+    // アイテムを追加
+    void addItemData(int id)
+    {
+        ItemData itemData = ItemSettings.Instance.Get(id);
+
+        if (null == itemData)
+        {
+            Debug.LogError("アイテムデータが見つかりませんでした");
+            return;
+        }
+
+        // データ追加
+        Stats.AddItemData(itemData);
+
+        // 取得済みリストへの追加
+        ItemData key = null;
+        foreach (var item in ItemDatas)
+        {
+            if (item.Key.Id == itemData.Id)
+            {
+                key = item.Key;
+                break;
+            }
+        }
+
+        if(null == key)
+        {
+            ItemDatas.Add(itemData, 0);
+            key = itemData;
+        }
+
+        ItemDatas[key]++;
+    }
+
+    // レベルアップやアイテム取得時
+    public void AddBonusData(BonusData bonusData)
+    {
+        if (null == bonusData) return;
+
+        // 武器データ
+        if (null != bonusData.WeaponSpawnerStats)
+        {
+            addWeaponSpawner(bonusData.WeaponSpawnerStats.Id);
+        }
+
+        // アイテムデータ
+        if (null != bonusData.ItemData)
+        {
+            addItemData(bonusData.ItemData.Id);
+        }
+
+        // 表示更新
+        setSliderHP();
+    }
+
+    // アップデート停止
+    public void SetEnabled(bool enabled = true)
+    {
+        this.enabled = enabled;
+
+        // 武器
+        foreach (var item in WeaponSpawners)
+        {
+            item.SetEnabled(enabled);
+        }
     }
 }
 

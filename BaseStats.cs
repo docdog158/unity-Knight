@@ -24,8 +24,8 @@ public enum StatsType
     AliveTime,
     //武器生産用
     SpawnCount,
-    SpawnTimeMin,
-    SpawnTimeMax,
+    SpawnTimerMin,
+    SpawnTimerMax,
 }
 
 
