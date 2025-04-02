@@ -349,7 +349,10 @@ public class PlayerController : MonoBehaviour
                 Stats.MaxXP = levelRequirements[Stats.Lv];
             }
 
-            // TODO レベルアップパネル表示
+            // レベルアップパネル表示
+            sceneDirector.DispPanelLevelUp();
+
+
             setTextLv();
         }
 
