@@ -33,7 +33,7 @@ public class PanelLevelUpController : MonoBehaviour
         Text itemName = button.transform.Find("TextName").GetComponent<Text>();
         Text level = button.transform.Find("TextLevel").GetComponent<Text>();
         Text help = button.transform.Find("TextHelp").GetComponent<Text>();
-    
+
         image.sprite = icon;
         itemName.text = name;
         help.text = desc;

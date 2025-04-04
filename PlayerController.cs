@@ -352,7 +352,6 @@ public class PlayerController : MonoBehaviour
             // レベルアップパネル表示
             sceneDirector.DispPanelLevelUp();
 
-
             setTextLv();
         }
 

@@ -49,8 +49,8 @@ public class GameSceneDirector : MonoBehaviour
         // 初期設定
         OldSeconds = -1;
         enemySpawner.Init(this, tilemapCollider);
-        panelLevelUp.Init(this);
 
+        panelLevelUp.Init(this);
 
         //カメラの移動できる範囲
         // GetComponentInChildren　指定したオブジェクトの子オブジェクト（<>内）を取得できる
