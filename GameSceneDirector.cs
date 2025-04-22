@@ -199,4 +199,10 @@ public class GameSceneDirector : MonoBehaviour
         // ゲーム停止
         setEnabled(false);
     }
+
+    // 宝箱パネル表示
+    public void DispPanelTreasureChest()
+    {
+        // TODO
+    }
 }
