@@ -50,12 +50,12 @@ public class PanelTreasureChestController : MonoBehaviour
         imageItem.rectTransform.anchoredPosition = imageItemInitPos;
         imageClose.rectTransform.localScale = imageCloseInitScale;
         imageClose.rectTransform.localEulerAngles = Vector3.zero;
-        imageBackFX.rectTransform.anchoredPosition =itemTargetPos;
-        imageBackFXShiny.rectTransform.anchoredPosition =itemTargetPos;
+        imageBackFX.rectTransform.anchoredPosition = itemTargetPos;
+        imageBackFXShiny.rectTransform.anchoredPosition = itemTargetPos;
 
         // アイテム画像
         imageItem.sprite = item.Icon;
-        Utils.SetAlpha(imageItem,0);
+        Utils.SetAlpha(imageItem, 0);
 
         // アイテム説明
         textDescription.text = item.Description;
@@ -66,7 +66,7 @@ public class PanelTreasureChestController : MonoBehaviour
         Utils.SetAlpha(imageClose, 1);
 
         // 開いた宝箱
-        imageClose.gameObject.SetActive(false);
+        imageOpen.gameObject.SetActive(false);
         Utils.SetAlpha(imageOpen, 1);
 
         // オープンボタン

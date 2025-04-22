@@ -39,6 +39,14 @@ public class GameSceneDirector : MonoBehaviour
     // レベルアップパネル
     [SerializeField] PanelLevelUpController panelLevelUp;
 
+    // 宝箱関連
+    [SerializeField] PanelTreasureChestController panelTreasureChest;
+    [SerializeField] GameObject prefabTreasureChest;
+    [SerializeField] List<int> treasureChestItemIds;
+    [SerializeField] float treasureChestTimerMin;
+    [SerializeField] float treasureChestTimerMax;
+    float treasureChestTimer;
+
     void Start()
     {
         // プレイヤー作成
@@ -51,6 +59,7 @@ public class GameSceneDirector : MonoBehaviour
         enemySpawner.Init(this, tilemapCollider);
 
         panelLevelUp.Init(this);
+        panelTreasureChest.Init(this);
 
         //カメラの移動できる範囲
         // GetComponentInChildren　指定したオブジェクトの子オブジェクト（<>内）を取得できる
@@ -81,6 +90,9 @@ public class GameSceneDirector : MonoBehaviour
         float aspect = (float)Screen.width / (float)Screen.height;
         WorldStart = new Vector2(TileMapStart.x - cameraSize * aspect, TileMapStart.y -cameraSize);
         WorldEnd = new Vector2(TileMapEnd.x + cameraSize * aspect, TileMapEnd.y + cameraSize);
+    
+        // 初期値
+        treasureChestTimer = Random.Range(treasureChestTimerMin,treasureChestTimerMax);
     }
 
     // Update is called once per frame
@@ -88,6 +100,9 @@ public class GameSceneDirector : MonoBehaviour
     {
         // ゲームタイマー更新
         updateGameTimer();
+
+        // 宝箱生成
+        updateTreasureChestSpawner();
     }
 
     // ダメージ表示
@@ -203,6 +218,47 @@ public class GameSceneDirector : MonoBehaviour
     // 宝箱パネル表示
     public void DispPanelTreasureChest()
     {
-        // TODO
+        // ランダムアイテム
+        ItemData item = getRandomItemData();
+        // データなし
+        if (null == item) return;
+
+        // パネル表示
+        panelTreasureChest.DispPanel(item);
+        // ゲーム中断
+        setEnabled(false);
+    }
+
+    // アイテムをランダムで返す
+    ItemData getRandomItemData()
+    {
+        if (1 > treasureChestItemIds.Count) return null;
+
+        // 抽選
+        int rnd = Random.Range(0, treasureChestItemIds.Count);
+        return ItemSettings.Instance.Get(treasureChestItemIds[rnd]);
+    }
+
+    // 宝箱生成
+    void updateTreasureChestSpawner()
+    {
+        // タイマー
+        treasureChestTimer -= Time.deltaTime;
+        // タイマー未消化
+        if (0 < treasureChestTimer) return;
+
+        // 生成場所
+        float x = Random.Range(WorldStart.x, WorldEnd.x);
+        float y = Random.Range(WorldStart.y, WorldEnd.y);
+
+        // 当たり判定のあるタイル状かどうか
+        if (Utils.IsColliderTile(tilemapCollider, new Vector2(x, y))) return;
+
+        // 生成
+        GameObject obj = Instantiate(prefabTreasureChest, new Vector3(x, y, 0), Quaternion.identity);
+        obj.GetComponent<TreasureChestController>().Init(this);
+
+        // 次のタイマーセット
+        treasureChestTimer = Random.Range(treasureChestTimerMin, treasureChestTimerMax);
     }
 }
